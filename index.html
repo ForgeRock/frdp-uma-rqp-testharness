@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<!--
+  Copyright (c) 2018-2021, ForgeRock, Inc., All rights reserved
+  Use subject to license terms.
+  Scott Fehrman, scott.fehrman@forgerock.com
+-->
+<!--
+Disclaimer:
+
+The sample code described herein is provided on an "as is" basis, without
+warranty of any kind, to the fullest extent permitted by law. ForgeRock does not
+warrant or guarantee the individual success developers may have in implementing
+the sample code on their development platforms or in production configurations.
+
+ForgeRock does not warrant, guarantee or make any representations regarding the
+use, results of use, accuracy, timeliness or completeness of any data or
+information relating to the sample code. ForgeRock disclaims all warranties,
+expressed or implied, and in particular, disclaims all warranties of
+merchantability, and warranties related to the code, or any service or software
+related thereto.
+
+ForgeRock shall not be liable for any direct, indirect or consequential damages
+or costs of any type arising out of any action taken by you or others related to
+the sample code.
+-->
+<html>
+    <head>
+        <title>UMA: RqP Test Harness</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" 
+            href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
+    </head>
+    <body>
+        <script src="https://code.jquery.com/jquery-3.3.1.js" 
+            integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" 
+            crossorigin="anonymous">
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/popper.min.js">
+        </script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/js/bootstrap.js">
+        </script>
+
+        <!-- NAVBAR BEGIN -->
+
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">UMA Requesting Party Test Harness</a>
+
+            <div class="navbar-nav mr-auto">
+                <a class="nav-item nav-link" id="frdp-menu-a-resource" href="#resource">
+                    Resource &amp; Scopes
+                </a>
+                <span class="navbar-text">&nbsp;|&nbsp;</span>
+                <a class="nav-item nav-link" id="frdp-menu-a-shared" href="#shared">
+                    Shared With Me
+                </a>
+                <span class="navbar-text">&nbsp;|&nbsp;</span>
+                <a class="nav-item nav-link" id="frdp-menu-a-discover" href="#discover">
+                    Discover
+                </a>
+            </div>
+
+            <div class="navbar-text">
+                <span id="frdp-menu-span-firstname"></span>&nbsp;
+                <span id="frdp-menu-span-lastname"></span>&nbsp;
+                (<span id="frdp-menu-span-userid"></span>)
+            </div>
+        </nav>
+
+        <!-- NAVBAR END -->
+
+        <br>
+
+        <!--  MENU CONTENT BEGIN: Resource Id  -->
+
+        <div id="frdp-menu-div-resource" class="container-fluid">
+            <div class="row">
+                <div class="col-md-1">
+                    <img src="./img/UMA2-logo.png" alt="UMA2" height="75"/>
+                </div>
+                <div class="col-md-11">
+                    <div class="form-group">
+                        <label>Resource Server:</label>
+                        <small class="form-text text-muted">
+                            <span id="frdp-resource-span-uri"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INPUTS BEGIN -->
+
+            <div class="row">
+                <div class="col-md-12">
+                    <form id="frdp-form-resource">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="frdp-resource-label-resourceid">
+                                        Resource Id:
+                                    </label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="frdp-resource-text-id"
+                                           aria-describedby="frdp-resource-label-resourceid"
+                                           placeholder="Enter the Resource Id"
+                                           required>
+                                    <small class="form-text text-muted">
+                                        The Resource MUST have been shared to
+                                        you by the Owner
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="frdp-resource-label-scopes">
+                                        Scopes:
+                                    </label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="frdp-resource-text-scopes"
+                                           aria-describedby="frdp-resource-label-scopes"
+                                           placeholder="Enter a list of scopes">
+                                    <small class="form-text text-muted">
+                                        The list of scopes, separated by a
+                                        "space", can ONLY be from the set of
+                                        allowed scopes
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="frdp-resource-label-rpt">
+                                        Requesting Party Token (RPT):
+                                    </label>
+                                    <input type="text"
+                                           style="font-family:monospace;"
+                                           class="form-control"
+                                           id="frdp-resource-text-rpt"
+                                           aria-describedby="frdp-resource-label-rpt"
+                                           placeholder="Needs to be generated"
+                                           readonly>
+                                    <small class="form-text text-muted">
+                                        The RPT associates the Resource
+                                        to the Requesting Party and OAuth 2.0 Client
+                                        <a href="#"
+                                           id="frdp-resource-a-clear-rpt">
+                                            [ Clear ]
+                                        </a>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="frdp-resource-suburl">&nbsp;</label>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <button id="frdp-resource-btn-get-resource"
+                                                class="btn btn-primary">
+                                            Get Resource
+                                        </button>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button id="frdp-resource-btn-get-claim"
+                                                class="btn btn-secondary">
+                                            Get Claim Token
+                                        </button>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button id="frdp-resource-btn-get-rpt"
+                                                class="btn btn-secondary">
+                                            Get RPT
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button id="frdp-resource-btn-reset"
+                                                class="btn btn-warning">
+                                            Reset
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- INPUTS END -->
+
+            <!-- BANNER BEGIN -->
+
+            <div id="frdp-resource-div-banner" class="row">
+                <div class="col-md-12">
+                    <br>
+                    <div id="frdp-resource-div-banner-info"
+                         class="alert alert-info"
+                         role="alert">
+                        Enter <b>Resource Id</b> and <b>Scope(s)</b> to
+                        access a resource
+                    </div>
+                    <div id="frdp-resource-div-banner-success"
+                         class="alert alert-success"
+                         role="alert">
+                        Congratulations
+                    </div>
+                    <div id="frdp-resource-div-banner-failed"
+                         class="alert alert-warning"
+                         role="alert">
+                        Sorry
+                    </div>
+                    <div id="frdp-resource-div-banner-error"
+                         class="alert alert-danger"
+                         role="alert">
+                        Error
+                    </div>
+                </div>
+            </div>
+
+            <!-- BANNER END -->
+
+            <div>
+                <br>
+                <nav>
+                    <div class="nav nav-tabs"
+                         id="frdp-resource-div-tab-resource"
+                         role="tablist">
+                        <a class="nav-item nav-link active"
+                           id="frdp-resource-a-tab-response"
+                           data-toggle="tab"
+                           href="#frdp-resource-tab-content-response"
+                           role="tab"
+                           aria-controls="frdp-resource-tab-content-response"
+                           aria-selected="true">Resource</a>
+                        <a class="nav-item nav-link"
+                           id="frdp-resource-a-tab-permticket"
+                           data-toggle="tab"
+                           href="#frdp-resource-tab-content-permticket"
+                           role="tab"
+                           aria-controls="frdp-resource-tab-content-permticket"
+                           aria-selected="false">Permission Ticket</a>
+                        <a class="nav-item nav-link"
+                           id="frdp-resource-a-tab-claimtoken"
+                           data-toggle="tab"
+                           href="#frdp-resource-tab-content-claimtoken"
+                           role="tab"
+                           aria-controls="frdp-resource-tab-content-claimtoken"
+                           aria-selected="false">Claim Token</a>
+                        <a class="nav-item nav-link"
+                           id="frdp-resource-a-tab-rpt"
+                           data-toggle="tab"
+                           href="#frdp-resource-tab-content-rpt"
+                           role="tab"
+                           aria-controls="frdp-resource-tab-content-rpt"
+                           aria-selected="false">Requesting Party Token</a>
+                    </div>
+                </nav>
+                <div class="tab-content" id="frdp-resource-tab-content-resource">
+
+                    <!-- TAB BEGIN: Resource -->
+
+                    <div class="tab-pane fade show active"
+                         id="frdp-resource-tab-content-response"
+                         role="tabpanel"
+                         aria-labelledby="frdp-resource-a-tab-response">
+
+                        <br>
+                        <div class="well">
+                            <div class="row form-group">
+                                <div class="col-md-2">
+                                    <label>Response:</label>
+                                </div>
+                                <div class="col-md-10">
+                                    <small class="form-text text-muted">
+                                        <span id="frdp-resource-span-status"></span>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <textarea class="form-control"
+                                              style="font-family:monospace;"
+                                              rows="20"
+                                              id="frdp-resource-textarea-response"
+                                              readonly>
+                                    </textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+                    <!-- TAB END: Resource -->
+
+                    <!-- TAB BEGIN: Permission Ticket -->
+
+                    <div class="tab-pane fade"
+                         id="frdp-resource-tab-content-permticket"
+                         role="tabpanel"
+                         aria-labelledby="frdp-resource-a-tab-permticket">
+
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form id="frdp-form-claimtoken">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Response:</b></label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <small class="form-text text-muted">
+                                                            <span id="frdp-resource-span-permTicket-status"></span>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <textarea class="form-control"
+                                                          style="font-family:monospace;"
+                                                          rows="24"
+                                                          id="frdp-resource-textarea-permTicket-response"
+                                                          readonly>
+                                                </textarea>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Encoded:</b> <tt>ticket</tt></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <textarea class="form-control"
+                                                                  style="font-family:monospace;"
+                                                                  rows="10"
+                                                                  id="frdp-resource-textarea-permTicket-encode"
+                                                                  readonly>
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Decoded:</b> <tt>ticket</tt></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <textarea class="form-control"
+                                                                  style="font-family:monospace;"
+                                                                  rows="10"
+                                                                  id="frdp-resource-textarea-permTicket-decode"
+                                                                  readonly>
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <small id="resourceId" class="form-text text-muted">
+                                            The above <strong>Permission Ticket</strong>,
+                                            along with a <strong>Claim Token</strong>, is
+                                            used to generate a
+                                            <strong>Requesting Party Token</strong>.
+                                            You need to get a <strong>Claim Token</strong>
+                                        </small>
+                                        <br>
+                                        <div class="row form-group">
+                                            <div class="col-md-2">
+                                                <label>Authorization Server:</label>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <small class="form-text text-muted">
+                                                    <span id="frdp-resource-span-as-uri"></span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB END: Permission Ticket -->
+
+                    <!-- TAB BEGIN: Claim Token -->
+
+                    <div class="tab-pane fade"
+                         id="frdp-resource-tab-content-claimtoken"
+                         role="tabpanel"
+                         aria-labelledby="frdp-resource-a-tab-claimtoken">
+
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form id="frdp-form-claimToken">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Response:</b></label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <small class="form-text text-muted">
+                                                            <span id="frdp-resource-span-claimToken-status"></span>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <textarea class="form-control"
+                                                          style="font-family:monospace;"
+                                                          rows="24"
+                                                          id="frdp-resource-textarea-claimToken-response"
+                                                          readonly>
+                                                </textarea>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Encoded:</b> <tt>id_token</tt></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <textarea class="form-control"
+                                                                  style="font-family:monospace;"
+                                                                  rows="10"
+                                                                  id="frdp-resource-textarea-claimToken-encode"
+                                                                  readonly>
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Decoded:</b> <tt>id_token</tt></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <textarea class="form-control"
+                                                                  style="font-family:monospace;"
+                                                                  rows="10"
+                                                                  id="frdp-resource-textarea-claimToken-decode"
+                                                                  readonly>
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <small id="claimToken" class="form-text text-muted">
+                                            The Claim Token verifies the User and Client.&nbsp;
+                                            Use the <strong>Permission Ticket</strong>
+                                            and the <strong>Claim Token</strong> to get the
+                                            <strong>Requesting Party Token</strong>.
+                                        </small>
+                                        <br>
+                                        <div class="row">
+                                            <div class="col-md-2">
+                                                <label>Authorization Code:</label>
+                                            </div>
+                                            <div class="col-md-10">
+                                                <small class="form-text text-muted">
+                                                    <span id="frdp-resource-span-auth-code"></span>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB END: Claim Token -->
+
+                    <!-- TAB BEGIN: Requesting Party (RPT) -->
+
+                    <div class="tab-pane fade"
+                         id="frdp-resource-tab-content-rpt"
+                         role="tabpanel"
+                         aria-labelledby="frdp-resource-a-tab-rpt">
+
+                        <br>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <form id="frdp-form-rpt">
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Response:</b></label>
+                                                    </div>
+                                                    <div class="col-md-8">
+                                                        <small class="form-text text-muted">
+                                                            <span id="frdp-resource-span-rpt-status"></span>
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                                <textarea class="form-control"
+                                                        style="font-family:monospace;"
+                                                        rows="24"
+                                                        id="frdp-resource-textarea-rpt-response"
+                                                        readonly>
+                                                </textarea>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Encoded:</b> <tt>access_token</tt></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <textarea class="form-control"
+                                                                style="font-family:monospace;"
+                                                                rows="10"
+                                                                id="frdp-resource-textarea-rpt-encode"
+                                                                readonly>
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div class="row form-group">
+                                                    <div class="col-md-4">
+                                                        <label><b>Decoded:</b> <tt>access_token</tt></label>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <textarea class="form-control"
+                                                                style="font-family:monospace;"
+                                                                rows="10"
+                                                                id="frdp-resource-textarea-rpt-decode"
+                                                                readonly>
+                                                        </textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                       </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <br>
+                    </div>
+
+                    <!-- TAB END: Requesting Party (RPT) -->
+
+                </div>
+            </div>
+        </div>
+
+        <!--  MENU CONTENT END: Resource Id  -->
+
+        <!--  MENU CONTENT BEGIN: Discover Owner Resource -->
+
+        <div id="frdp-menu-div-discover" class="container-fluid">
+
+            <div class="row">
+                <div class="col-md-1">
+                    <img src="./img/FR-icon.png" alt="ForgeRock" height="75"/>
+                </div>
+                <div class="col-md-11">
+                    <div class="form-group">
+                        <label>Resource Server:</label>
+                        <small class="form-text text-muted">
+                            <span id="frdp-discover-span-uri"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- pick owner and set filter -->
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="frdp-discover-select-owner">
+                                Owner:
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <input type="text"
+                                class="form-control"
+                                id="frdp-discover-text-owner"
+                                placeholder="Owner User Name">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="frdp-discover-filter">
+                                Filter:
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label>
+                                <input type="radio"
+                                       id="frdp-discover-filter-radio-none"
+                                       name="frdp-discover-filter"
+                                       value="" checked>
+                                <span>None</span>
+                            </label>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>
+                                        <input type="radio"
+                                               id="frdp-discover-filter-radio-type"
+                                               name="frdp-discover-filter"
+                                               value="type">
+                                        <span>Type</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="frdp-discover-filter-text-type"
+                                           placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>
+                                        <input type="radio"
+                                               id="frdp-discover-filter-radio-name"
+                                               name="frdp-discover-filter"
+                                               value="name">
+                                        <span>Name</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="frdp-discover-filter-text-name"
+                                           placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md-col-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="frdp-discover-actions">
+                                Actions:
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <button id="frdp-discover-btn-submit"
+                                    class="btn btn-primary">
+                                Get Discoverable
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button id="frdp-discover-btn-clear"
+                                    class="btn btn-warning">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- resource list -->
+                <div class="col-md-12">
+                    <label for="frdp-discover-table-resources">
+                        Resources:
+                    </label>
+                    <table class="table table-striped"
+                           id="frdp-discover-table-resources">
+                        <thead>
+                            <tr>
+                                <th scope="col">Resource Id</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">All Scopes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="frdp-discover-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!--  MENU CONTENT END: Discover Owner Resource -->
+
+        <!--  MENU CONTENT BEGIN: Shared with Me -->
+
+        <div id="frdp-menu-div-shared" class="container-fluid">
+
+            <div class="row">
+                <div class="col-md-1">
+                    <img src="./img/FR-icon.png" alt="ForgeRock" height="75"/>
+                </div>
+                <div class="col-md-11">
+                    <div class="form-group">
+                        <label>Resource Server:</label>
+                        <small class="form-text text-muted">
+                            <span id="frdp-shared-span-uri"></span>
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- set filter -->
+                <div class="col-md-3">
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="frdp-shared-filter">
+                                Filter:
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-2">
+                            <label>
+                                <input type="radio"
+                                       id="frdp-shared-filter-radio-none"
+                                       name="frdp-shared-filter"
+                                       value="" checked>
+                                <span>None</span>
+                            </label>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>
+                                        <input type="radio"
+                                               id="frdp-shared-filter-radio-type"
+                                               name="frdp-shared-filter"
+                                               value="type">
+                                        <span>Type</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="frdp-shared-filter-text-type"
+                                           placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>
+                                        <input type="radio"
+                                               id="frdp-shared-filter-radio-name"
+                                               name="frdp-shared-filter"
+                                               value="name">
+                                        <span>Name</span>
+                                    </label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="frdp-shared-filter-text-name"
+                                           placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="frdp-shared-actions">
+                                Actions:
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <button id="frdp-shared-btn-submit"
+                                    class="btn btn-primary">
+                                Get Shared
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button id="frdp-shared-btn-clear"
+                                    class="btn btn-warning">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- resource list -->
+                <div class="col-md-12">
+                    <label for="frdp-shared-table-resources">
+                        Resources:
+                    </label>
+                    <table class="table table-striped"
+                           id="frdp-shared-table-resources">
+                        <thead>
+                            <tr>
+                                <th scope="col">Resource Id</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Owner</th>
+                                <th scope="col">My Scopes</th>
+                                <th scope="col">All Scopes</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="frdp-shared-table-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!--  MENU CONTENT END: Shared with Me -->
+
+        <!-- FOOTER BEGIN -->
+
+        <div id="frdp-div-footer" class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    Copyright &copy; ForgeRock, Inc. 2018-2021,
+                    All Rights Reserved, Use subject to license terms.
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER END -->
+
+        <!-- MODAL BEGIN: Authentication -->
+
+        <div class="modal"  id="frdp-modal-authen" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Login as a Requesting Party user</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="frdp-input-authen-username" 
+                                    class="form-label">User Name</label>
+                                <input type="text" 
+                                    class="form-control" 
+                                    id="frdp-input-authen-username" 
+                                    aria-describedby="emailHelp">
+                            </div>
+                            <div class="mb-3">
+                                <label for="frdp-input-authen-password" 
+                                    class="form-label">Password</label>
+                                <input type="password" 
+                                    class="form-control" 
+                                    id="frdp-input-authen-password">
+                            </div>
+                        </form>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <input type="button" 
+                                    id="frdp-btn-authen-submit" 
+                                    class="btn btn-primary" value="Submit">
+                            </div>
+                            <div class="col-md-9"></div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <span><b>Status:</b></span>
+                                </div>
+                                <div class="col-md-10">
+                                    <span id="frdp-span-authen-status"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL BEGIN: Authentication -->
+
+        <script src="js/variables.js"></script>
+        <script src="js/uma-rqp-test-harness.js"></script>
+    </body>
+</html>

@@ -2,7 +2,9 @@
 
 ForgeRock Demonstration Platform : **UMA Requesting Party Test Harness** : A deployable web utility that provides a means to test the Requesting Party (RqP) flow for obtaining a resource.  This utility is implemented as a HTML/JavaScript web application and leverages the open source [UMA Resource Server](https://github.com/ForgeRock/frdp-uma-resource-server) and [ForgeRock Access Manager](https://www.forgerock.com/platform/access-management).
 
-`git clone https://github.com/ForgeRock/frdp-uma-resource-server.git`
+INSERT IMAGE HERE
+
+`git clone https://github.com/ForgeRock/frdp-uma-rqp-testharness.git`
 
 # Disclaimer
 
