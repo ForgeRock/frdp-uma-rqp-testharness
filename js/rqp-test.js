@@ -26,6 +26,10 @@
 
 // Global variables
 
+/*
+ * Configurable variables are in the variables.js file
+ */
+
 var _frdp_uma_as_oauth2_url = "";
 var _frdp_uma_rs_url = "";
 var _frdp_uma_rs_discover = "";
@@ -1039,6 +1043,10 @@ $(document).ready(function () {
         divMenuDiscover.hide();
         divMenuShared.hide();
 
+        aMenuResource.css("font-weight", "Bold");
+        aMenuDiscover.css("font-weight", "Normal");
+        aMenuShared.css("font-weight", "Normal");
+
         spanResourceStatus.text("");
         spanResourcePermTicketStatus.text("");
         spanResourceClaimTokenStatus.text("");
@@ -1051,6 +1059,8 @@ $(document).ready(function () {
         textareaResourceClaimTokenEncode.text("");
         textareaResourceClaimTokenDecode.text("");
         textareaResourceRPTResponse.text("");
+        textareaResourceRPTEncode.text("");
+        textareaResourceRPTDecode.text("");
         textareaResourceResponse.text("");
 
         textResourceId.val("");
@@ -1313,6 +1323,9 @@ $(document).ready(function () {
     });
 
     aMenuResource.click(function () {
+        aMenuResource.css("font-weight", "Bold");
+        aMenuDiscover.css("font-weight", "Normal");
+        aMenuShared.css("font-weight", "Normal");
         divMenuResource.show();
         divMenuDiscover.hide();
         divMenuShared.hide();
@@ -1320,15 +1333,24 @@ $(document).ready(function () {
     });
 
     aMenuDiscover.click(function () {
+        aMenuResource.css("font-weight", "Normal");
+        aMenuDiscover.css("font-weight", "Bold");
+        aMenuShared.css("font-weight", "Normal");
         divMenuResource.hide();
         divMenuDiscover.show();
         divMenuShared.hide();
+        updateDiscoverURI();
+        textDiscoverOwner.focus();
     });
 
     aMenuShared.click(function () {
+        aMenuResource.css("font-weight", "Normal");
+        aMenuDiscover.css("font-weight", "Normal");
+        aMenuShared.css("font-weight", "Bold");
         divMenuResource.hide();
         divMenuDiscover.hide();
         divMenuShared.show();
+        updateSharedURI();
     });
 
     btnResourceGetResource.click(function (event) {
@@ -1495,6 +1517,7 @@ $(document).ready(function () {
         _frdp_uma_rs_filter_discover = "";
 
         tableBodyDiscover.html("");
+        textDiscoverOwner.val("");
         textDiscoverFilterName.val("");
         textDiscoverFilterType.val("");
         textDiscoverFilterName.prop("disabled", true);

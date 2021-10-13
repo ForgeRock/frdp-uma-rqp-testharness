@@ -21,3 +21,15 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 - Documentation: [ForgeRock Access Manager 7, User Managed Access (UMA) 2.0 Guide](https://backstage.forgerock.com/docs/am/7/uma-guide/)
 
 # Requirements
+
+# Features
+
+## Resource and Scopes
+
+## Shared With Me
+
+"Shared with me" leverages capabilities unique to the Resource Server and the ForgeRock Platform
+
+## Discover
+
+"Discover" leverages capabilities unique to the Resource Server and the ForgeRock Platform
